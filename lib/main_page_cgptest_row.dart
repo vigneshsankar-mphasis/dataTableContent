@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -30,21 +29,35 @@ class _TableScreenState extends State<TableScreen> {
   final List<int> _rowsPerPageOptions = [10, 20, 50, 100];
   int _currentPage = 0;
   int _totalRows = 0;
+  bool _isLoading = false;
   bool _isAddingNewRow = false;
   TextEditingController _titleController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
 
   Future<void> _fetchData() async {
-    final response = await http.get(Uri.parse('https://dummyjson.com/products?limit=$_rowsPerPage&skip=${_currentPage * _rowsPerPage}&select=title,price'));
+    setState(() {
+      _isLoading = true;
+    });
+
+    final response = await http.get(Uri.parse(
+        'https://dummyjson.com/products?limit=$_rowsPerPage&skip=${_currentPage * _rowsPerPage}'));
+
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
-        _totalRows = data['total'];
-        _rows = (data['products'] as List).map((item) => {
+        _totalRows = data['total']; // Get the total number of products
+        _rows = (data['products'] as List)
+            .map((item) => {
           'title': item['title'],
-          'price': item['price'],
+          'price': item['price'].toString(),
           'isManual': false,
-        }).toList();
+        })
+            .toList();
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -53,6 +66,16 @@ class _TableScreenState extends State<TableScreen> {
   void initState() {
     super.initState();
     _fetchData();
+  }
+
+  void _onPageChanged(int index) {
+    int newPage = (index ~/ _rowsPerPage);
+    if (newPage != _currentPage) {
+      setState(() {
+        _currentPage = newPage;
+      });
+      _fetchData();
+    }
   }
 
   void _addNewRow() {
@@ -76,7 +99,7 @@ class _TableScreenState extends State<TableScreen> {
 
   void _deleteRow(int index) {
     setState(() {
-      if (_manualRows.length > index) {
+      if (index < _manualRows.length) {
         _manualRows.removeAt(index);
       } else {
         _rows.removeAt(index - _manualRows.length);
@@ -90,10 +113,11 @@ class _TableScreenState extends State<TableScreen> {
       appBar: AppBar(title: Text('Paginated Table with API')),
       body: Column(
         children: [
+          if (_isLoading) LinearProgressIndicator(),
           Expanded(
             child: SingleChildScrollView(
               child: PaginatedDataTable(
-                header: Text('Financial Ratios - Remarks'),
+                header: Text('Products List'),
                 columns: [
                   DataColumn(label: Text('Title')),
                   DataColumn(label: Text('Price')),
@@ -105,15 +129,11 @@ class _TableScreenState extends State<TableScreen> {
                 onRowsPerPageChanged: (value) {
                   setState(() {
                     _rowsPerPage = value ?? 10;
-                    _fetchData();
+                    _currentPage = 0;
                   });
+                  _fetchData();
                 },
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = (index ~/ _rowsPerPage);
-                    _fetchData();
-                  });
-                },
+                onPageChanged: _onPageChanged,
               ),
             ),
           ),
@@ -122,9 +142,15 @@ class _TableScreenState extends State<TableScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  Expanded(child: TextField(controller: _titleController, decoration: InputDecoration(labelText: 'Title'))),
+                  Expanded(
+                      child: TextField(
+                          controller: _titleController,
+                          decoration: InputDecoration(labelText: 'Title'))),
                   SizedBox(width: 10),
-                  Expanded(child: TextField(controller: _priceController, decoration: InputDecoration(labelText: 'Price'))),
+                  Expanded(
+                      child: TextField(
+                          controller: _priceController,
+                          decoration: InputDecoration(labelText: 'Price'))),
                   IconButton(icon: Icon(Icons.check), onPressed: _saveNewRow),
                 ],
               ),
@@ -155,7 +181,8 @@ class _TableDataSource extends DataTableSource {
     return DataRow(cells: [
       DataCell(Text(row['title'])),
       DataCell(Text('\$${row['price']}')),
-      DataCell(IconButton(icon: Icon(Icons.delete), onPressed: () => _deleteRow(index))),
+      DataCell(IconButton(
+          icon: Icon(Icons.delete), onPressed: () => _deleteRow(index))),
     ]);
   }
 
