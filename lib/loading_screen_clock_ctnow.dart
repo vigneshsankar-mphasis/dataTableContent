@@ -7,16 +7,16 @@ class LoadingScreen extends StatefulWidget {
   final Color secondHandColor;
 
   const LoadingScreen({
-    Key? key,
+    super.key,
     this.minuteHandColor = Colors.blue,
     this.secondHandColor = Colors.red,
-  }) : super(key: key);
+  });
 
   @override
-  _LoadingScreenState createState() => _LoadingScreenState();
+  LoadingScreenState createState() => LoadingScreenState();
 }
 
-class _LoadingScreenState extends State<LoadingScreen> {
+class LoadingScreenState extends State<LoadingScreen> {
   late Timer _timer;
   DateTime currentTime = DateTime.now();
 
@@ -41,7 +41,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Container(color: Colors.grey.withOpacity(0.3)), // Lighter transparency
+        Container(color: Colors.grey.withValues(alpha: 1)), // Lighter transparency
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +59,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              CircularProgressIndicator(color: Colors.white, strokeWidth: 1,),
+              CircularProgressIndicator(color: Colors.white, strokeWidth: 1),
               SizedBox(height: 10),
               Text(
                 "Loading, please wait...",
