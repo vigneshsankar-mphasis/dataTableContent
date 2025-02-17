@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for Web back button (if needed)
 
 class LoadingScreen extends StatefulWidget {
   final Color hourHandColor;
@@ -50,11 +51,47 @@ class LoadingScreenState extends State<LoadingScreen> {
     super.dispose();
   }
 
+  Future<bool> _onWillPop() async {
+    // Simply pop the current screen without any confirmation.
+    Navigator.of(context).pop();
+    return true;
+  }
+
+  //Alert Dialog to close.
+  Future<bool> _onWillPop_alert() async {
+    // Show a dialog to confirm if the user wants to exit
+    bool exitApp = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Exit"),
+        content: const Text("Do you want to go back?"),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // No, don't exit
+            },
+            child: const Text("No"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // Yes, exit
+            },
+            child: const Text("Yes"),
+          ),
+        ],
+      ),
+    ) ?? false;
+
+    return exitApp;
+  }
+
   @override
   Widget build(BuildContext context) {
     try {
       double clockSize = MediaQuery.of(context).size.width < 400 ? 75 : 100;
-      return Stack(
+    return WillPopScope(
+      onWillPop: _onWillPop, // Handle back press
+      child: Stack(
         fit: StackFit.expand,
         children: [
           Container(color: widget.backgroundColor.withOpacity(1)),
@@ -85,7 +122,8 @@ class LoadingScreenState extends State<LoadingScreen> {
             ),
           ),
         ],
-      );
+      )
+    );
     } catch (e) {
       debugPrint("Error in build method: $e");
       return Center(
