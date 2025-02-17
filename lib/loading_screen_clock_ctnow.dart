@@ -3,13 +3,19 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class LoadingScreen extends StatefulWidget {
+  final Color hourHandColor;
   final Color minuteHandColor;
   final Color secondHandColor;
+  final Color backgroundColor;
+  final String loadingText;
 
   const LoadingScreen({
     super.key,
+    this.hourHandColor = Colors.black,
     this.minuteHandColor = Colors.blue,
     this.secondHandColor = Colors.red,
+    this.backgroundColor = Colors.grey,
+    this.loadingText = "Loading, please wait...",
   });
 
   @override
@@ -23,7 +29,7 @@ class LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         currentTime = DateTime.now();
       });
@@ -38,32 +44,33 @@ class LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double clockSize = MediaQuery.of(context).size.width < 400 ? 75 : 100;
     return Stack(
       fit: StackFit.expand,
       children: [
-        Container(color: Colors.grey.withValues(alpha: 1)), // Lighter transparency
+        Container(color: widget.backgroundColor.withValues(alpha: 1)),
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Full Circle Analog Clock
               SizedBox(
-                width: 100,
-                height: 100,
+                width: clockSize,
+                height: clockSize,
                 child: CustomPaint(
                   painter: AnalogClockPainter(
                     currentTime,
+                    hourHandColor: widget.hourHandColor,
                     minuteHandColor: widget.minuteHandColor,
                     secondHandColor: widget.secondHandColor,
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              CircularProgressIndicator(color: Colors.white, strokeWidth: 1),
-              SizedBox(height: 10),
+              const SizedBox(height: 20),
+              const CircularProgressIndicator(color: Colors.white, strokeWidth: 1),
+              const SizedBox(height: 10),
               Text(
-                "Loading, please wait...",
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                widget.loadingText,
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ],
           ),
@@ -73,20 +80,19 @@ class LoadingScreenState extends State<LoadingScreen> {
   }
 }
 
-// Custom Painter for Analog Clock
 class AnalogClockPainter extends CustomPainter {
   final DateTime time;
+  final Color hourHandColor;
   final Color minuteHandColor;
   final Color secondHandColor;
 
-  AnalogClockPainter(this.time, {required this.minuteHandColor, required this.secondHandColor});
+  AnalogClockPainter(this.time, {required this.hourHandColor, required this.minuteHandColor, required this.secondHandColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-    // Paint white background for clock
     final paintCircle = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -96,22 +102,30 @@ class AnalogClockPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
-    // Paint hands
+    final paintHourHand = Paint()
+      ..color = hourHandColor
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
     final paintMinuteHand = Paint()
       ..color = minuteHandColor
-      ..strokeWidth = 3
+      ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
     final paintSecondHand = Paint()
       ..color = secondHandColor
-      ..strokeWidth = 2
+      ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round;
 
-    // Draw clock background
     canvas.drawCircle(center, radius, paintCircle);
     canvas.drawCircle(center, radius, paintBorder);
 
-    // Calculate hand positions
+    final hourAngle = ((time.hour % 12) * 30 + time.minute * 0.5) * (math.pi / 180);
+    final hourHand = Offset(
+      center.dx + radius * 0.5 * math.cos(hourAngle - math.pi / 2),
+      center.dy + radius * 0.5 * math.sin(hourAngle - math.pi / 2),
+    );
+
     final minuteAngle = (time.minute * 6) * (math.pi / 180);
     final minuteHand = Offset(
       center.dx + radius * 0.6 * math.cos(minuteAngle - math.pi / 2),
@@ -124,7 +138,7 @@ class AnalogClockPainter extends CustomPainter {
       center.dy + radius * 0.8 * math.sin(secondAngle - math.pi / 2),
     );
 
-    // Draw clock hands
+    canvas.drawLine(center, hourHand, paintHourHand);
     canvas.drawLine(center, minuteHand, paintMinuteHand);
     canvas.drawLine(center, secondHand, paintSecondHand);
   }

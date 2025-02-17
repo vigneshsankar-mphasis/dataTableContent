@@ -55,7 +55,12 @@ class _DataPageState extends State<DataPage> {
     PlutoColumn(
       title: 'Category',
       field: 'category',
-      type: PlutoColumnType.text(),
+      type: /*PlutoColumnType.text(),*/
+      PlutoColumnType.select(<String>[
+        'Programmer',
+        'Designer',
+        'Owner',
+      ]),
     ),
     PlutoColumn(
       title: 'Price',
