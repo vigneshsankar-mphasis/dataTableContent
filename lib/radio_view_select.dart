@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'radio_option_widget.dart';
-import 'radio_group_widget.dart';
+import 'radio_selection_widget.dart'; // Import the merged radio selection widget
 
 void main() {
   runApp(MyApp());
@@ -52,16 +51,15 @@ class _RadioSelectionScreenState extends State<RadioSelectionScreen> {
             SizedBox(height: 10),
             Column(
               children: options
-                  .map((option) => RadioOptionWidget(
+                  .map((option) => RadioSelectionWidget(
                 title: option,
-                value: option,
-                groupValue: selectedValueA,
-                circleColor: _getCircleColor(option),
+                selectedValue: selectedValueA,
                 onChanged: (value) {
                   setState(() {
                     selectedValueA = value;
                   });
                 },
+                selectedColor: _getCircleColor(option),
               ))
                   .toList(),
             ),
@@ -74,7 +72,7 @@ class _RadioSelectionScreenState extends State<RadioSelectionScreen> {
             // === Option B: ListView Radio Buttons ===
             Text('Option B - ListView Select:', style: Theme.of(context).textTheme.bodyMedium),
             SizedBox(height: 10),
-            RadioGroupWidget(
+            RadioSelectionWidget(
               options: options,
               selectedValue: selectedValueB,
               selectedColor: Colors.green,
