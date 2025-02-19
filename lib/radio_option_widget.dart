@@ -8,13 +8,13 @@ class RadioOptionWidget extends StatelessWidget {
   final Color circleColor; // Custom circle color
 
   const RadioOptionWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.groupValue,
     required this.onChanged,
     this.circleColor = Colors.blue, // Default color
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +26,24 @@ class RadioOptionWidget extends StatelessWidget {
       leading: Radio<String>(
         value: value,
         groupValue: groupValue,
-        onChanged: (value) => onChanged(value!),
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return circleColor; // Change circle color when selected
+        onChanged: (newValue) {
+          try {
+            if (newValue != null) {
+              onChanged(newValue);
+            }
+          } catch (e, stackTrace) {
+            debugPrint("Error in RadioOptionWidget: $e");
+            debugPrintStack(stackTrace: stackTrace);
           }
-          return Colors.grey; // Default unselected color
-        }),
+        },
+        fillColor: WidgetStateProperty.resolveWith<Color?>(
+              (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return circleColor; // Custom selected color
+            }
+            return Colors.grey; // Default unselected color
+          },
+        ),
       ),
     );
   }

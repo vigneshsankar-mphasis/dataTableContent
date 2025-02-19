@@ -27,13 +27,23 @@ class RadioGroupWidget extends StatelessWidget {
           title: Text(options[index], style: Theme.of(context).textTheme.bodyMedium),
           value: options[index],
           groupValue: selectedValue,
-          onChanged: (value) => onChanged(value!),
-          fillColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return selectedColor; // Apply selected color
+          onChanged: (value) {
+            try {
+              if (value != null) {
+                onChanged(value);
+              }
+            } catch (e) {
+              debugPrint("Error in RadioGroupWidget: $e");
             }
-            return unselectedColor; // Apply unselected color
-          }),
+          },
+          fillColor: WidgetStateProperty.resolveWith<Color?>(
+                (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return selectedColor; // Apply selected color
+              }
+              return unselectedColor; // Apply unselected color
+            },
+          ),
         );
       },
     );
