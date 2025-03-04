@@ -48,6 +48,7 @@ class _TableScreenState extends State<TableScreen> {
           },
           configuration: PlutoGridConfiguration(
             style: PlutoGridStyleConfig(
+              rowHeight: 450,
               activatedBorderColor: Colors.blue,
               // also check box select color and entire row select active color
               activatedColor: Colors.white30,
