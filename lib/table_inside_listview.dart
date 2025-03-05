@@ -212,6 +212,20 @@ class _PlutoGridExampleState extends State<PlutoGridExample> {
         {'rno': '101', 'name': 'Category D'},
       ]),
     }),
+    PlutoRow(cells: {
+      'sno': PlutoCell(value: '2'),
+      'name': PlutoCell(value: 'Kumar'),
+      'email': PlutoCell(value: 'kumar@gmail.com'),
+      'mobile': PlutoCell(value: '0987654321'),
+      'category_list': PlutoCell(value: [
+        {'rno': '789', 'name': 'Category C'},
+        {'rno': '789', 'name': 'Category C'},
+        {'rno': '789', 'name': 'Category C'},
+        {'rno': '789', 'name': 'Category C'},
+        {'rno': '789', 'name': 'Category C'},
+        {'rno': '101', 'name': 'Category D'},
+      ]),
+    }),
   ];
 
   @override
