@@ -49,6 +49,7 @@ dev_dependencies:
   pluto_grid: ^8.0.0
   responsive_table: ^0.2.0+2
   flutter_bloc: ^8.1.2
+  davi: ^4.0.1
 
   paged_datatable: ^2.1.1
   faker: any
